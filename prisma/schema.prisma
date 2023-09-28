@@ -6,6 +6,47 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  // MongoDB ObjectId for the unique identifier
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  // User attributes
+  email    String  @unique
+  password String
+  name     String?
+  address Address?
+  posts   Post[]
+}
+
+
+model Post {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  // Post attributes
+  slug     String    @unique
+  title    String
+  body     String
+  // Author Relation
+  author   User      @relation(fields: [authorId], references: [id])
+  authorId String    @db.ObjectId
+  comments Comment[]
+}
+
+ 
+
+model Comment {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  comment String
+  post    Post   @relation(fields: [postId], references: [id])
+  postId  String @db.ObjectId
+}
+
+// Address is an embedded document
+type Address {
+  street String
+  city   String
+  state  String
+  zip    String
 }
